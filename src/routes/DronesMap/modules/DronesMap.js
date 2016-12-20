@@ -21,6 +21,7 @@ let updateTimeoutId;
 // ------------------------------------
 export const DRONES_LOADED = 'DronesMap/DRONES_LOADED';
 export const DRONES_UPDATED = 'DronesMap/DRONES_UPDATED';
+export const DRONE_INFO_LOADED = 'DronesMap/DRONE_INFO_LOADED';
 
 // ------------------------------------
 // Actions
@@ -30,8 +31,12 @@ export const DRONES_UPDATED = 'DronesMap/DRONES_UPDATED';
 // load drones and initialize socket
 export const init = () => async(dispatch) => {
   const { body: {items: drones} } = await APIService.searchDrones({limit: DRONE_LIMIT});
+  const droneInfo = drones.map(async (drone) => {
+    return await APIService.getDroneInfo(drone.id);
+  });
   lastUpdated = new Date().getTime();
   dispatch({ type: DRONES_LOADED, payload: {drones} });
+  dispatch({ type: DRONE_INFO_LOADED, payload: droneInfo});
   socket = io(config.API_BASE_PATH);
   socket.on('dronepositionupdate', (drone) => {
     pendingUpdates[drone.id] = drone;
@@ -67,6 +72,7 @@ export const actions = {
 // ------------------------------------
 export default handleActions({
   [DRONES_LOADED]: (state, { payload: {drones} }) => ({ ...state, drones }),
+  [DRONE_INFO_LOADED]: (state, { payload: info }) => ({...state, droneInfo: info }),
   [DRONES_UPDATED]: (state, { payload: updates }) => ({
     ...state,
     drones: state.drones.map((drone) => {
@@ -81,4 +87,5 @@ export default handleActions({
     zoom: 3,
     center: { lat: 0, lng: 0 },
   },
+  droneInfo: null,
 });
