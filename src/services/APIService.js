@@ -576,4 +576,25 @@ export default class APIService {
       .query(params)
       .end();
   }
+
+  static getDroneInfo(id) {
+    return request
+      .get(`${config.API_BASE_PATH}/api/v1/provider/drones/${id}`)
+      .end();
+  }
+
+  /**
+   * Get past drone positions
+   * @param {Object} params
+   * @param {Number} params.limit the limit
+   * @param {Number} params.offset the offset
+   * @param {Number} id drone id
+   * @returns {{total: Number, items: Array}} the result
+   */
+  static getPastPositions(params, id) {
+    return request
+      .get(`${config.API_BASE_PATH}/api/v1/dronePosition/${id}`)
+      .query(params)
+      .end();
+  }
 }
